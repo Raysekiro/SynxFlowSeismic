@@ -7,59 +7,44 @@ FilePath = 'D:\1Reserch\Code\git_repo\SynxFlowSeismic\GISDATA\';
 
 %% Input
 DepthInputFile = [FilePath, 'depth'];
-DepthOutputFile = [FilePath, 'depthpeak'];
+DepthOutputFile = [FilePath, tName 'depthpeak'];
 DemInputFile = [FilePath, 'dem'];
-DemOutputFile = [FilePath, 'dempeak'];
+DemOutputFile = [FilePath, tName 'dempeak'];
 [DepthDATA, DepthHeader] = readAsciiGrid(DepthInputFile);
 [DemDATA, DemHeader] = readAsciiGrid(DemInputFile);
 
 %% Process 
-x_area_min = 1;
-x_area_max = DemHeader.ncols;
-y_area_min = 1;
-y_area_max = DemHeader.nrows;
-width = DemHeader.cellsize;
-quiverWidth = 5 * width;
-Depth = 2;
-% Depth -----------------------------------
-row_range = 20:80;
-col_range = 15:150;
-% DepthDATA(row_range, col_range) = 2;
-DepthDATA = Depth * ones(size(DepthDATA));
-DepthDATA_M = DepthDATA;
-% Dem -----------------------------------
-PeakData = peaks(100);  % This generates a 100x100 matrix
-% Create grids for interpolation
-[xi, yi] = meshgrid(linspace(1, 100, 200), 1:100);
-[xq, yq] = meshgrid(x_area_min:width:x_area_max, y_area_min:width:y_area_max);
-vq = interp2(PeakData, xi, yi);
-[Dxq,Dyq] = gradient(vq, width);
-X = xq(:);  
-Y = yq(:);  
-Z = vq(:);
-[xq_q,yq_q] = meshgrid(x_area_min:quiverWidth:x_area_max, y_area_min:quiverWidth:y_area_max); 
-vq_q = griddata(X,Y,Z,xq_q,yq_q); 
-[Dxq_q,Dyq_q] = gradient(vq_q,quiverWidth);
+[xq, yq, vq, xq_q, yq_q, vq_q, Dxq_q, Dyq_q, slope, DepthDATA_M, ...
+    x_area_max, y_area_max, PeakScope, width, quiverWidth, Depth, Z] = initializeDEMandH();
+
 %% Plot
 min_value_contour = min(vq(:));
 max_value_contour = max(vq(:));
-contour_levels = min_value_contour:5:max_value_contour;
-x_ax_min2 = 0; % For adjusted XY
-x_ax_max2 = 200;
-y_ax_min2 = 0;
-y_ax_max2 = 100;
+contour_levels = min_value_contour:1:max_value_contour;
+x_ax_min2 = (x_area_max - PeakScope) / 2 - 10; 
+x_ax_max2 = (x_area_max + PeakScope) / 2 + 10;
+y_ax_min2 = (y_area_max - PeakScope) / 2 - 10;
+y_ax_max2 = (y_area_max + PeakScope) / 2 + 10;
 data_ft = 0;
 data_mt = 0;
 AdjustX = 0;
-AdjustY = 0;
-f1name = [FilePath, tName '_DAFVM3Dsynxflow_GIS_', num2str(width) ];
+AdjustY = 3;
+f1name = [FilePath, tName '_DAFVM3Dsynxflow_GIS_H'];
 title1 = ['H Map | Grid Width: ', num2str(width), 'm'];
 % cbname = 'Normalized H';
 cbname = 'H';
 createMapH(f1name, title1, cbname, DepthDATA_M,...
     xq, yq, vq, contour_levels, xq_q, yq_q, vq_q, Dxq_q, Dyq_q, data_ft, data_mt, Z, AdjustX, AdjustY, x_ax_min2, x_ax_max2, y_ax_min2, y_ax_max2);
+createMapSuW(f1name, title1, cbname, slope,...
+    xq, yq, vq, contour_levels, xq_q, yq_q, vq_q, Dxq_q, Dyq_q, data_ft, data_mt, Z, AdjustX, AdjustY, x_ax_min2, x_ax_max2, y_ax_min2, y_ax_max2);
 % save([f1name '.mat'], 'NormalizeH_Field');
 %% Output
+DemHeader.ncols = size(xq, 2); 
+DemHeader.nrows = size(xq, 1); 
+DemHeader.cellsize = width;
+DepthHeader.ncols = size(xq, 2); 
+DepthHeader.nrows = size(xq, 1); 
+DepthHeader.cellsize = width;
 writeAsciiGrid(DepthDATA_M, DepthHeader, DepthOutputFile);
 writeAsciiGrid(vq, DemHeader, DemOutputFile);
 %% Dairy
