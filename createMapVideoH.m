@@ -1,4 +1,4 @@
-function createMapVideoH(v, fname, titlename, cbname, ColorData,...
+function framedata = createMapVideoH(v, fname, titlename, cbname, ColorData,...
     xq, yq, vq, contour_levels, xq_q, yq_q, vq_q, Dxq_q, Dyq_q, data_ft, data_mt,  ...
     Z, AdjustX, AdjustY, x_ax_min2, x_ax_max2, y_ax_min2, y_ax_max2)
     % Create figure
@@ -44,7 +44,7 @@ function createMapVideoH(v, fname, titlename, cbname, ColorData,...
     % exportgraphics(f1, [fname '.png'], 'Resolution', 800);
    
     drawnow;
-    frame = getframe(f1);
-    writeVideo(v, frame);
-    % close(f1);
+    framedata = getframe(f1);
+    % writeVideo(v, frame);
+    close(f1);
 end

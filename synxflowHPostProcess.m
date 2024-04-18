@@ -10,6 +10,8 @@ diary(diaryFileName);
 %% input parameters
 paramsFilePath = [FilePath 'Parameters.txt'];
 params = readParamsToStruct(paramsFilePath);
+DEMOriginFile = params.DEMName;
+DepthOriginFile = params.DepthName;
 start_time = params.startTime;% (s)
 total_simulation_time = params.totalSimulationTime ;
 output_interval = params.outputInterval;
@@ -18,7 +20,6 @@ mu = params.mu;
 rho = params.rho;
 rheology_Type = params.rheologyType;
 curvature_On = params.curvatureOn;
-Depth = 2;
 % output h.asc
 SynOutputFileH = extractAsciiGridData(FilePath, 'h_%g.asc', start_time, total_simulation_time, output_interval);
 %% Initailization
@@ -42,20 +43,34 @@ AdjustclimMax = max(SynOutputFileH(length(SynOutputFileH)).data(:))/ Depth;
 fname = [OutPath, tName '_DAFVM3Dsynxflow_GIS_H'];
 VideoName = [fname '.mp4'];
 v = VideoWriter(VideoName, 'MPEG-4');
-open(v);
-for i = 1:1:length(SynOutputFileH)
+n = length(SynOutputFileH);
+precomputedFrames(n) = struct('cdata', [], 'colormap', []); % Preallocate the array with empty structures
+parfor i = 1 : n
+    
+    % NormalizeH -------------------------------------------------------
     NormalizeH_Field = SynOutputFileH(i).data / Depth;
     f1name = [OutPath, tName '_DAFVM3Dsynxflow_GIS_H_t-',num2str((i * output_interval),'%.2f'),'s'];
     title1 = ['Normalized H Map | Grid Width: ', num2str(width), 'm | \mu : ', ...
         num2str(mu), ' | cohesion: ', num2str(cohesion), 'kPa | \rho: ', num2str(rho),...
         'kg/m^3 | Rheology Type: ', num2str(rheology_Type), ' | Curvature On : ', num2str(curvature_On)...
         ' | t=',num2str((i * output_interval),'%.2f'),'s'];
-
     cbname ='Normalized H';
-    createMapVideoH(v, f1name, title1, cbname, NormalizeH_Field,...
+    frameData = createMapVideoH(v, f1name, title1, cbname, NormalizeH_Field,...
         xq, yq, vq, contour_levels, xq_q, yq_q, vq_q, Dxq_q, Dyq_q, data_ft, data_mt, Z, AdjustclimMin, AdjustclimMax, x_ax_min2, x_ax_max2, y_ax_min2, y_ax_max2);
+    % hUx -------------------------------------------------------
+
+    % hUy -------------------------------------------------------
+    precomputedFrames(i) = frameData;
+end
+
+h = waitbar(0,'Please wait, Video is ready soon...');
+open(v);
+for i = 1:n
+    waitbar(i/n,h,sprintf('Progress: %d%%',int32(100*i/n)));
+    writeVideo(v, precomputedFrames(i)); % Write each frame to the video file
 end
 close(v);
+close(h);
 % save([fname '.mat'], 'SynOutputFileH');
 %% Dairy
 tEnd = toc(tStart);  
@@ -63,7 +78,7 @@ formattedTime = formatTime(tEnd);
 fprintf('Start time: %s\n', t);
 fprintf('Elapsed time: %s\n', formattedTime);
 variableNames = {'fname','rho','mu','cohesion','rheology_Type','curvature_On','Depth','quiverWidth',...
-    'start_time','total_simulation_time','output_interval','output_interval','x_area_max','y_area_max'};
+    'start_time','total_simulation_time','output_interval','output_interval','x_area_max','y_area_max','DEMOriginFile','DepthOriginFile'};
 for i = 1:length(variableNames)
     varName = variableNames{i};
     if exist(varName, 'var')

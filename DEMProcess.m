@@ -20,7 +20,7 @@ DemOutputFile = [FilePath, tName 'dempeak'];
 %% Plot
 min_value_contour = min(vq(:));
 max_value_contour = max(vq(:));
-contour_levels = min_value_contour:1:max_value_contour;
+contour_levels = min_value_contour:0.5:max_value_contour;
 x_ax_min2 = (x_area_max - PeakScope) / 2 - 10; 
 x_ax_max2 = (x_area_max + PeakScope) / 2 + 10;
 y_ax_min2 = (y_area_max - PeakScope) / 2 - 10;

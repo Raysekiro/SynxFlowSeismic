@@ -2,11 +2,11 @@ function [xq, yq, vq, xq_q, yq_q, vq_q, Dxq_q, Dyq_q, slope, DepthDATA_M, ...
     x_area_max, y_area_max, PeakScope, width, quiverWidth, Depth, Z] = initializeDEMandH()
     % Define constants and ranges
     x_area_min = 1;
-    x_area_max = 200;
+    x_area_max = 500;
     y_area_min = 1;
-    y_area_max = 200;
-    width = 0.2;
-    quiverWidth = 5 * width;
+    y_area_max = 500;
+    width = 0.5;
+    quiverWidth = 15 * width;
     Depth = 2;
     PeakScope = min(x_area_max, y_area_max) / 2;
     PeakSize = 200;
