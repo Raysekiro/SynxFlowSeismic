@@ -1,4 +1,4 @@
-function framedata = createMapVideoH(v, fname, titlename, cbname, ColorData,...
+function framedata = createMapVideoH(v, fname, titlename, cbname, ColorData, cmapType, ...
     xq, yq, vq, contour_levels, xq_q, yq_q, vq_q, Dxq_q, Dyq_q, data_ft, data_mt,  ...
     Z, AdjustX, AdjustY, x_ax_min2, x_ax_max2, y_ax_min2, y_ax_max2)
     % Create figure
@@ -6,7 +6,8 @@ function framedata = createMapVideoH(v, fname, titlename, cbname, ColorData,...
     % Plot surface
     surf(xq, yq, vq, 'CData', ColorData, 'FaceColor', 'interp', 'EdgeColor', 'none');
     clim([AdjustX, AdjustY]);
-    cmap = cmocean('balance','pivot',1); % ColorMap cmocean
+    cmap = cmapType;  
+    % cmap = cmocean('balance','pivot',1); % ColorMap cmocean
     colormap(cmap); 
     cb = colorbar;
     ylabel(cb, cbname);
