@@ -1,11 +1,11 @@
 function framedata = createMapVideoH(v, fname, titlename, cbname, ColorData, cmapType, ...
     xq, yq, vq, contour_levels, xq_q, yq_q, vq_q, Dxq_q, Dyq_q, data_ft, data_mt,  ...
-    Z, AdjustX, AdjustY, x_ax_min2, x_ax_max2, y_ax_min2, y_ax_max2)
+    Z, AdjustclimMin, AdjustclimMax,  AdjustX, AdjustY, x_ax_min2, x_ax_max2, y_ax_min2, y_ax_max2, flag)
     % Create figure
     f1 = figure('units','normalized','outerposition',[0 0 1 1],'visible','off');
     % Plot surface
     surf(xq, yq, vq, 'CData', ColorData, 'FaceColor', 'interp', 'EdgeColor', 'none');
-    clim([AdjustX, AdjustY]);
+    clim([AdjustclimMin, AdjustclimMax]);
     cmap = cmapType;  
     % cmap = cmocean('balance','pivot',1); % ColorMap cmocean
     colormap(cmap); 
@@ -19,12 +19,10 @@ function framedata = createMapVideoH(v, fname, titlename, cbname, ColorData, cma
     % Add quiver plot
     quiver3(xq_q,yq_q,vq_q,-Dxq_q,-Dyq_q,zeros(size(xq_q)), 'AutoScale', 'on', 'AutoScaleFactor', 0.8, 'LineWidth', 1);
     
+    if strcmpi(flag, 'Zinnen')
     % Plot geological features
-    % plotGeologicalFeatures(data_ft, data_mt, Z, AdjustX, AdjustY);
-    
-    % Set color limits
-    
-    % clim([min(ColorData(:)) - (1e-6), max(ColorData(:))]);
+    plotGeologicalFeatures(data_ft, data_mt, Z, AdjustX, AdjustY);
+    end
     
     % Adjust aspect ratio, limits, and view
     daspect([1 1 1]); 
@@ -46,6 +44,6 @@ function framedata = createMapVideoH(v, fname, titlename, cbname, ColorData, cma
    
     drawnow;
     framedata = getframe(f1);
-    % writeVideo(v, frame);
+    writeVideo(v, framedata);
     close(f1);
 end
