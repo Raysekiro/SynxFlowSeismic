@@ -4,7 +4,10 @@ function cmapType = setDynamicColormap(xq, yq, vq, data, AdjustclimMin, Adjustcl
     surf(xq, yq, vq, 'CData', data, 'FaceColor', 'interp', 'EdgeColor', 'none');
     clim([AdjustclimMin, AdjustclimMax]); % Set the color limits
     if flag == 1
-    cmapType = cmocean('balance', 'pivot', pivotValue); % Apply cmocean colormap
+    colormap(flipud(slanCM('RdBu')));
+    setPivot(gca, pivotValue);
+    cmapType = colormap(gca);  
+    % cmapType = cmocean('balance', 'pivot', pivotValue); % Apply cmocean colormap   
     else
     cmapType = colormap(parula);
     end
